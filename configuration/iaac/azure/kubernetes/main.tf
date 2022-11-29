@@ -1,8 +1,5 @@
 provider "azurerm" {
   features {}
-
-  client_id     = var.client_id
-  client_secret = var.client_secret
 }
 
 resource "azurerm_resource_group" "resource_group" {
@@ -29,6 +26,11 @@ resource "azurerm_kubernetes_cluster" "terraform-k8s" {
     node_count      = var.node_count
     vm_size         = "standard_b2ms"
     # vm_size         = "standard_d2as_v5"      CHANGE IF AN ERROR ARISES 
+  }
+
+  service_principal {
+    client_id     = var.client_id
+    client_secret = var.client_secret
   }
 
   tags = {
