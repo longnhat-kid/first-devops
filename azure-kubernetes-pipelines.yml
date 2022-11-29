@@ -20,7 +20,6 @@ steps:
   inputs:
     command: 'init'
     workingDirectory: '$(System.DefaultWorkingDirectory)/configuration/iaac/azure/kubernetes'
-    commandOptions: '-var client_id=$(client_id) -var client_secret=$(client_secret) -var ssh_public_key=$(publickey.getSecureFilePath)'
     backendType: 'azurerm'
     backendServiceArm: 'pobakyd-sc-service-connection'
     backendAzureRmSubscriptionId: 'c1cb15c0-ba91-43de-9d1d-6339e77df8e8'
@@ -31,4 +30,10 @@ steps:
     backendAzureRmContainerName: 'backend-storage-pobakyd-container'
     backendAzureRmKey: 'kubernetes.tfstate'
     allowTelemetryCollection: true
+
+- task: TerraformCLI@0
+  inputs:
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/configuration/iaac/azure/kubernetes'
+    commandOptions: '-var client_id=$(client_id) -var client_secret=$(client_secret) -var ssh_public_key=$(publickey.getSecureFilePath)'
 
