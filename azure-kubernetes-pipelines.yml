@@ -27,7 +27,7 @@ steps:
     ensureBackend: true
     backendAzureRmResourceGroupName: 'backend-resource-group'
     backendAzureRmResourceGroupLocation: 'westeurope'
-    backendAzureRmStorageAccountName: 'backend-storage-pobakyd'
+    backendAzureRmStorageAccountName: 'backendstoragepobakyd'
     backendAzureRmContainerName: 'backend-storage-pobakyd-container'
     backendAzureRmKey: 'kubernetes.tfstate'
     allowTelemetryCollection: true
