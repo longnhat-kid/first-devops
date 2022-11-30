@@ -1,19 +1,54 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+# stage 1: Build
+# build docker image
+# publish configuration file
+stages:
+- stage: Build
+  displayName: Build docker image
+  jobs:
+  - job: Build
+    displayName: Build docker image
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker-registry-service-connection'
+        repository: 'lionelnhat26/first-devops-microservices'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.DefaultWorkingDirectory)'
+        Contents: '**/*.yaml'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'manifests'
+        publishLocation: 'Container'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+# stage 2: Deploy
+# download k8s configuration file
+# deploy k8s
+- stage: Deploy
+  displayName: Deploy docker image
+  jobs:
+  - job: Deploy
+    displayName: Deploy docker image
+    steps:
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'specific'
+        itemPattern: '**/*.yaml'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'k8s-service-connection'
+        manifests: '$(System.ArtifactsDirectory)/configuration/kubernetes/deployment.yaml'
+        containers: 'lionelnhat26/first-devops-microservices:$(Build.BuildId)'
